@@ -1,0 +1,13 @@
+name = "LatticeGeometry"
+uuid = "53256ec5-896c-476c-9209-850188b27ce5"
+authors = ["W. Joe Meese <meesewj@gmail.com> and contributors"]
+version = "0.0.1"
+
+[compat]
+julia = "1.11"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
