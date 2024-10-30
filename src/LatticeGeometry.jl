@@ -10,10 +10,10 @@ export AbstractUnitCell, UnitCell,
        num_atoms, summarize, show
 
 
-
-abstract type AbstractLattice end
-struct Lattice <: AbstractLattice
-
-end
+include("LatticeStructures.jl")
+export AbstractVectorBasis, CrystalBasis, ReducedBasis,
+       construct_metric, 
+       AbstractLatticeStructure, dot, norm
+       LatticeStructure, metric
 
 end
