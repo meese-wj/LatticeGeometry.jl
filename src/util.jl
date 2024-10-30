@@ -1,5 +1,7 @@
 
 import Base: Exception, showerror
+import StaticArrays
+
 export showerror
 
 """
@@ -28,3 +30,24 @@ function message(err::AbstractionError)
 end
 
 Base.showerror(io::IO, err::AbstractionError) = print(io, "AbstractionError: $(message(err))")
+
+"""
+    _positions_within_bounds(positions; [interval = [0, 1]])
+
+Internal function to check that each position coordinate is on the supplied `interval`.
+"""
+function _positions_within_bounds(positions; interval = StaticArrays.@SVector [0.0, 1.0])
+    output = true
+    for pos ∈ positions, comp ∈ pos
+        output *= interval[begin] ≤ comp ≤ interval[end]
+    end
+    return output  
+end
+
+function _tabulate_label_positions(labels, positions)
+    output = ""
+    for (label, pos) ∈ zip(labels, positions)
+        output *= "\n    $(label) at $(pos)"
+    end
+    return output
+end
