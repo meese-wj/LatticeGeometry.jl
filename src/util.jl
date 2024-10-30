@@ -24,7 +24,7 @@ function message(err::AbstractionError)
     if length(err.args) ≥ 2
         signature *= ", $(err.args[end]))"
     end
-    return "The function `$(err.func)` has no method definition with the signature: `$(signature)`."
+    return "The function `$(err.func)` has no method definition with the signature: `$(signature)`.\n\n\tAre you sure you implemented the API correctly? 🤨\n"
 end
 
 Base.showerror(io::IO, err::AbstractionError) = print(io, "AbstractionError: $(message(err))")

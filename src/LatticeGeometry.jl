@@ -2,6 +2,7 @@ module LatticeGeometry
 
 import LinearAlgebra
 import StaticArrays
+include("util.jl")
 
 abstract type AbstractUnitCell end
 names(cell::AbstractUnitCell) = throw(AbstractionError(names, cell))
