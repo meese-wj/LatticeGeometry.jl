@@ -61,14 +61,14 @@ julia> labels = SVector( "Fe", "As" );
 
 julia> UnitCell(labels, positions)
 
-  `UnitCell` containing 2 atoms in 2 spatial dimensions.
+  `UnitCell` containing 2 atoms in 3 spatial dimensions.
 
     Fe at [0.0, 0.0, 0.0]
     As at [0.5, 0.5, 0.5]
 
 julia> UnitCell(positions; warn_on = false)
 
-  `UnitCell` containing 2 atoms in 2 spatial dimensions.
+  `UnitCell` containing 2 atoms in 3 spatial dimensions.
 
     Atom_1 at [0.0, 0.0, 0.0]
     Atom_2 at [0.5, 0.5, 0.5]

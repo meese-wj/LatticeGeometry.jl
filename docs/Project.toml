@@ -1,3 +1,4 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 LatticeGeometry = "53256ec5-896c-476c-9209-850188b27ce5"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
