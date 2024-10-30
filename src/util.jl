@@ -2,8 +2,6 @@
 import Base: Exception, showerror
 import StaticArrays
 
-export showerror
-
 """
     AbstractionError <: Exception
 
