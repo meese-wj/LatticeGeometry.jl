@@ -5,7 +5,7 @@ import StaticArrays as SA
 abstract type AbstractUnitCell end
 
 ##############################################
-# Enforced API Definitions
+# Enforced Interface Definitions
 ##############################################
 Base.names(cell::AbstractUnitCell) = throw(AbstractionError(names, cell))
 dimension(cell::AbstractUnitCell) = throw(AbstractionError(dimension, cell))
@@ -16,6 +16,9 @@ atomic_positions(cell::AbstractUnitCell) = throw(AbstractionError(atomic_positio
 ##############################################
 num_atoms(cell::AbstractUnitCell) = length(names(cell))
 function summarize(cell::AbstractUnitCell)
+    names(cell) isa Base.AbstractVecOrTuple ? nothing : throw(ArgumentError("The names and atomic positions must be `<: AbstractVecOrTuple`. Check the `names` definition.")) 
+    atomic_positions(cell) isa Base.AbstractVecOrTuple ? nothing : throw(ArgumentError("The names and atomic positions must be `<: AbstractVecOrTuple`. Check the `atomic_positions` definition.")) 
+
     output = "\n  `$(typeof(cell).name.wrapper)` containing $(num_atoms(cell)) atoms in $(dimension(cell)) spatial dimensions.\n"
     output *= _tabulate_label_positions(names(cell), atomic_positions(cell))
     return output
