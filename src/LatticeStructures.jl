@@ -56,7 +56,7 @@ function construct_metric(lattice_vectors)
     for idx ∈ eachindex(lattice_vectors), jdx ∈ eachindex(lattice_vectors)
         gij[idx, jdx] = LA.dot(lattice_vectors[idx], lattice_vectors[jdx])
     end
-    @assert LA.det(gij) ≠ zero(eltype(gij)) "The supplied basis does not space the space and the metric is noninvertible."
+    @assert LA.det(gij) ≠ zero(eltype(gij)) "The supplied basis does not span the space and the metric is noninvertible."
     return SA.SMatrix{dim, dim}(gij)
 end
 
