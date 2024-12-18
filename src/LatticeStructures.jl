@@ -1,11 +1,4 @@
 
-import LinearAlgebra as LA
-import LinearAlgebra: norm
-import StaticArrays as SA
-
-abstract type AbstractVectorBasis end
-struct CrystalBasis <: AbstractVectorBasis end
-struct ReducedBasis <: AbstractVectorBasis end
 
 @doc raw"""
     construct_metric(lattice_vectors)

@@ -9,7 +9,7 @@ export AbstractUnitCell, UnitCell,
        names, dimension, atomic_positions, 
        num_atoms, summarize, show
 
-include("Geometer.jl")
+include("CrystalGeometer.jl")
 
 include("LatticeStructures.jl")
 export AbstractVectorBasis, CrystalBasis, ReducedBasis,
