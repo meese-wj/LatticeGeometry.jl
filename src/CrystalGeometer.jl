@@ -10,6 +10,9 @@ abstract type AbstractBasisTransformation end
 struct ReducedToCrystal <: AbstractBasisTransformation end
 struct CrystalToReduced <: AbstractBasisTransformation end
 
+# ***********************************************
+# Abstract Crystal Geometer
+# ***********************************************
 """
     abstract type AbstractCrystalGeometer end
 
@@ -17,6 +20,35 @@ A generic family of structures/functors that will control
 the access to metrics and distances based on basis vectors.
 """
 abstract type AbstractCrystalGeometer end
+
+"""
+    dimension(::AbstractCrystalGeometer)
+
+Return the spatial dimension of the [`AbstractCrystalGeometer`](@ref).
+"""
+dimension(geo::AbstractCrystalGeometer) = throw(AbstractionError(dimension, geo))
+
+"""
+    basis_vectors(::AbstractCrystalGeometer)
+
+Return the lattice basis vectors (in the [`CrystalBasis`](@ref)).
+"""
+basis_vectors(geo::AbstractCrystalGeometer) = throw(AbstractionError(basis_vectors, geo))
+
+"""
+    basis_change(::AbstractCrystalGeometer, ::AbstractBasisTransformation)
+
+Return the transformation matrix from the [`AbstractCrystalGeometer`](@ref)
+for the appropriate [`AbstractBasisTransformation`](@ref).
+"""
+basis_change(geo::AbstractCrystalGeometer, basis::AbstractBasisTransformation) = throw(AbstractionError(basis_change, geo, basis))
+"""
+    cell_volume(::AbstractCrystalGeometer)
+
+Return the unit-cell volume for a given set of [`basis_vectors`](@ref).
+This is just the `det`erminant of the `basis_change(::AbstractCrystalGeometer, ReducedToCrystal())`.
+"""
+cell_volume(geo::AbstractCrystalGeometer) = throw(AbstractionError(cell_volume, geo))
 
 """
     metric(::AbstractCrystalGeometer, ::CrystalBasis)
@@ -51,7 +83,7 @@ g_{ij} = a_{i,k}a_{j,k} = \vec{a}_i \cdot \vec{a}_j.
 """
 metric(geo::AbstractCrystalGeometer, ::ReducedBasis) = throw(AbstractionError(metric, geo, ReducedBasis()))
 
-"""
+@doc raw"""
     LinearAlgebra.dot(Pvec, Qvec, ::AbstractCrystalGeometer, ::AbstractVectorBasis)
 
 Compute the scalar `dot` product between two vectors `Pvec` and `Qvec`, both measured in 
@@ -91,6 +123,10 @@ This function relies on the scalar [`dot`](@ref) product and the vector [`norm`]
 """
 angle_between(Pvec, Qvec, geo::AbstractCrystalGeometer, basis::AbstractVectorBasis) = acos( cosine_angle_between(Pvec, Qvec, geo, basis) )
 
+
+# ***********************************************
+# Default Implementations
+# ***********************************************
 """
     DefaultCrystalGeometer{D, T}
 
@@ -123,9 +159,9 @@ DefaultCrystalGeometer{D, T}(args...) where {D, T} = DefaultCrystalGeometer{D, T
 DefaultCrystalGeometer{T}( vectors::Vector ) where T = DefaultCrystalGeometer{length(vectors), T}(vectors)
 
 dimension(::DefaultCrystalGeometer{D, T, D2}) where {D, T, D2} = D
+basis_vectors(geo::DefaultCrystalGeometer) = SA.SVector{dimension(geo)}( [ col for col ∈ eachcol( basis_change( geo, ReducedToCrystal() ) ) ] )
 basis_change( geo::DefaultCrystalGeometer, ::ReducedToCrystal ) = geo.basischange_RtoC
 basis_change( geo::DefaultCrystalGeometer, ::CrystalToReduced ) = geo.basischange_CtoR
 metric(geo::DefaultCrystalGeometer, ::ReducedBasis) = geo.metric_Rbasis
-basis_vectors(geo::DefaultCrystalGeometer) = SA.SVector{dimension(geo)}( [ col for col ∈ eachcol( basis_change( geo, ReducedToCrystal() ) ) ] )
 
 cell_volume(geo::DefaultCrystalGeometer) = LA.det( basis_change(geo, ReducedToCrystal()) ) |> abs
