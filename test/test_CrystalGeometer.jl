@@ -49,7 +49,12 @@ using LinearAlgebra
             end
 
             @testset "DefaultCrystalGeometer Constructor tests" begin
+                ortho_vecs = [ [1, 0], [0, 2] ]
+                @test_throws AssertionError DefaultCrystalGeometer{2, Float32, 3}(ortho_vecs)
+                @test_throws AssertionError DefaultCrystalGeometer{3, Float32}(ortho_vecs)
                 
+                ortho_vecs = [ [1, 0, 0], [0, 0, 1], [1, 1]]
+                @test_throws AssertionError DefaultCrystalGeometer{3, Float32}(ortho_vecs)
             end
 
         end
