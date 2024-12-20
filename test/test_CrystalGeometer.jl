@@ -50,11 +50,33 @@ using LinearAlgebra
 
             @testset "DefaultCrystalGeometer Constructor tests" begin
                 ortho_vecs = [ [1, 0], [0, 2] ]
-                @test_throws AssertionError DefaultCrystalGeometer{2, Float32, 3}(ortho_vecs)
+                @test_throws AssertionError DefaultCrystalGeometer{2, Float32, Float64, 3}(ortho_vecs)
                 @test_throws AssertionError DefaultCrystalGeometer{3, Float32}(ortho_vecs)
                 
                 ortho_vecs = [ [1, 0, 0], [0, 0, 1], [1, 1]]
                 @test_throws AssertionError DefaultCrystalGeometer{3, Float32}(ortho_vecs)
+            end
+
+            @testset "DefaultCrystalGeometer Interface tests" begin
+                ftype = Float32
+                cube_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]
+                cube_geo = DefaultCrystalGeometer{ftype}(cube_vecs)
+
+                Pvec = [ 1, 2, 3 ]
+                Qvec = [0.5, 1, 1.5]
+                @test norm(Pvec, cube_geo, CrystalBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
+                @test norm(Pvec, cube_geo, ReducedBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
+                @test dot(Pvec, Qvec, cube_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
+                @test dot(Pvec, Qvec, cube_geo, ReducedBasis()) ≈ sum( Pvec .* Qvec )
+                @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
+                @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
+                @test isapprox(angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
+                @test isapprox(angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
+                
+                tetra_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 2] ]
+                tetra_geo = DefaultCrystalGeometer{Float32}(tetra_vecs)
+
+                # @test norm()
             end
 
         end
