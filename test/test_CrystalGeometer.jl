@@ -59,24 +59,55 @@ using LinearAlgebra
 
             @testset "DefaultCrystalGeometer Interface tests" begin
                 ftype = Float32
-                cube_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]
-                cube_geo = DefaultCrystalGeometer{ftype}(cube_vecs)
-
                 Pvec = [ 1, 2, 3 ]
                 Qvec = [0.5, 1, 1.5]
-                @test norm(Pvec, cube_geo, CrystalBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
-                @test norm(Pvec, cube_geo, ReducedBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
-                @test dot(Pvec, Qvec, cube_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
-                @test dot(Pvec, Qvec, cube_geo, ReducedBasis()) ≈ sum( Pvec .* Qvec )
-                @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
-                @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
-                @test isapprox(angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
-                @test isapprox(angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
-                
-                tetra_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 2] ]
-                tetra_geo = DefaultCrystalGeometer{Float32}(tetra_vecs)
 
-                # @test norm()
+                @testset "Cubic Lattice" begin
+                    cube_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]
+                    cube_geo = DefaultCrystalGeometer{ftype}(cube_vecs)
+                    
+                    @test norm(Pvec, cube_geo, CrystalBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
+                    @test norm(Pvec, cube_geo, ReducedBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
+                    @test dot(Pvec, Qvec, cube_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
+                    @test dot(Pvec, Qvec, cube_geo, ReducedBasis()) ≈ sum( Pvec .* Qvec )
+                    @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
+                    @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
+                    @test isapprox(angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
+                    @test isapprox(angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
+                end
+
+                @testset "Orthorhombic Lattice" begin
+                    av = [1, 0, 0]
+                    bv = [0, 2, 0]
+                    cv = [0, 0, 3]
+                    ortho_vecs = [ av, bv, cv ]
+                    ortho_geo = DefaultCrystalGeometer{Float32}(ortho_vecs)
+                    
+                    @test norm(Pvec, ortho_geo, CrystalBasis()) ≈ sqrt(sum(x -> x^2, Pvec))
+                    @test norm(Pvec, ortho_geo, ReducedBasis()) ≈ sqrt(sum(x -> x^2, Pvec .* av) + sum(x -> x^2, Pvec .* bv) + sum(x -> x^2, Pvec .* cv))
+                    @test dot(Pvec, Qvec, ortho_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
+                    @test dot(Pvec, Qvec, ortho_geo, ReducedBasis()) ≈ sum([ ortho_vecs[idx][idx]^2 * Pvec[idx] * Qvec[idx] for idx ∈ 1:3 ])
+                    @test angle_between(Pvec, Qvec, ortho_geo, CrystalBasis()) ≈ acos( sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)) )
+                    @test angle_between(Pvec, Qvec, ortho_geo, ReducedBasis()) ≈ acos(sum([ ortho_vecs[idx][idx]^2 * Pvec[idx] * Qvec[idx] for idx ∈ 1:3 ]) / (norm(Pvec, ortho_geo, ReducedBasis()) * norm(Qvec, ortho_geo, ReducedBasis())))
+                end
+
+                @testset "Rhombohedral Lattice" begin
+                    rha1 = [1, 0, 0]
+                    rha2 = 0.5 * [-1, sqrt(3), 0]
+                    rhc  = [0, 0, 4]
+                    rhomb_vecs = [ rha1, rha2, rhc ]
+                    rhomb_geo = DefaultCrystalGeometer{ftype}(rhomb_vecs)
+
+                    Rvec = [1, 1, 0]
+                    Svec = Rvec + [0,0,1]
+                    Tvec = [1, 0, 0]
+                    
+                    @test angle_between( Tvec, [0, 1, 0], rhomb_geo, ReducedBasis() ) ≈ 2π/3  # hard-coded because this result is important
+                    @test angle_between( Tvec, [0, 0, 1], rhomb_geo, ReducedBasis() ) ≈ π/2  # hard-coded because this result is important
+                    @test angle_between( Tvec, Rvec, rhomb_geo, ReducedBasis() ) ≈ π/3  # hard-coded because this result is important
+                    @test angle_between( Rvec, Svec, rhomb_geo, ReducedBasis() ) ≈ atan(rhc[3] / norm(rha2))  # hard-coded because this result is important
+
+                end
             end
 
         end

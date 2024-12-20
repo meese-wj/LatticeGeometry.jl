@@ -135,7 +135,9 @@ of spatial dimension `D` and with basis vectors of with `eltype` `T <: AbstractF
 
 ** Note
     The metric will be stored in a secondary default type of `MT = Float64` for 
-    higher precision calculations, particularly of angles between vectors.
+    higher precision calculations, particularly of angles between vectors. If, for
+    some crazy reason, one wants to store the basis vectors as a type `T` with _more_
+    precision than `Float64`, then `MT` will be be `promote`d to `T`.
 """
 struct DefaultCrystalGeometer{D, T <: AbstractFloat, MT <: AbstractFloat, D2} <: AbstractCrystalGeometer
     basischange_RtoC::SA.SMatrix{D, D, T, D2}  # C = [a1 | a2 | a3 | ... ]
@@ -145,7 +147,7 @@ struct DefaultCrystalGeometer{D, T <: AbstractFloat, MT <: AbstractFloat, D2} <:
     function DefaultCrystalGeometer{D, T, MT, D2}(latt_vectors) where {D, T, MT, D2}
         @assert D2 == D * D "The last template parameter **must** be the first squared. Got $D2 when it should be $(D*D) == ($D)^2."
         @assert length(latt_vectors) == D "The number of basis vectors must match the dimension of the space. Got $(length(latt_vectors)) vectors instead of $D of them."
-        MTtype = promote_type(T, MT)
+        MTtype = promote_type(T, MT)  # Promote the metric type to be at least as precise as T
         Tvecs = SA.SVector{D, T}[]
         MTvecs = SA.SVector{D, MTtype}[]
         for (idx, vec) ∈ enumerate(latt_vectors)
