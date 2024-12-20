@@ -122,7 +122,27 @@ Compute the angle between `Pvec` and `Qvec`, both measured in a given
 This function relies on the scalar [`dot`](@ref) product and the vector [`norm`](@ref).
 """
 angle_between(Pvec, Qvec, geo::AbstractCrystalGeometer, basis::AbstractVectorBasis) = acos( cosine_angle_between(Pvec, Qvec, geo, basis) )
+@doc raw"""
+    change_coordinates(Pvec, ::AbstractCrystalGeometer, ::AbstractBasisTransformation)
 
+Convert the `Pvec` vector into a different set of coordinates using the 
+given `AbstractCrystalGeometer` and `AbstractBasisTransformation`. For example,
+to go from reduced coordinates to the physical crystal coordinates, use
+
+```julia
+change_coordinates(Pvec, geo, ReducedToCrystal())  # geo <: AbstractCrystalGeometer
+```
+
+Mathematically, the coordinate change in the example above amounts to
+
+```math
+\vec{P} = \vec{a}_i P_i = C \cdot \boldsymbol{P},
+```
+
+where ``\boldsymbol{P}`` is the vector of reduced coordinates and 
+``C = [\vec{a}_1 | \vec{a}_2 | \dots]`` is the matrix of lattice vectors.
+"""
+change_coordinates(Pvec, geo::AbstractCrystalGeometer, basis::AbstractBasisTransformation) = basis_change(geo, basis) * Pvec
 
 # ***********************************************
 # Default Implementations
@@ -169,7 +189,9 @@ DefaultCrystalGeometer{D, T, MT}(args...) where {D, T, MT} = DefaultCrystalGeome
 DefaultCrystalGeometer{D, T}(args...) where {D, T} = DefaultCrystalGeometer{D, T, Float64}(args...)
 DefaultCrystalGeometer{T}( vectors::Vector ) where T = DefaultCrystalGeometer{length(vectors), T}(vectors)
 
-dimension(::DefaultCrystalGeometer{D, T, D2}) where {D, T, D2} = D
+dimension(::DefaultCrystalGeometer{D, T, MT, D2}) where {D, T, MT, D2} = D
+
+basis_vector_type(::DefaultCrystalGeometer{D, T, MT, D2}) where {D, T, MT, D2} = T
 basis_vectors(geo::DefaultCrystalGeometer) = SA.SVector{dimension(geo)}( [ col for col ∈ eachcol( basis_change( geo, ReducedToCrystal() ) ) ] )
 basis_change( geo::DefaultCrystalGeometer, ::ReducedToCrystal ) = geo.basischange_RtoC
 basis_change( geo::DefaultCrystalGeometer, ::CrystalToReduced ) = geo.basischange_CtoR

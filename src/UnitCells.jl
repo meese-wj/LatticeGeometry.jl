@@ -84,3 +84,4 @@ end
 Base.names(cell::UnitCell) = cell.atom_names
 dimension(::UnitCell{N, D, T}) where {N, D,T} = D
 atomic_positions(cell::UnitCell) = cell.atom_positions
+atomic_position_type(::UnitCell{N, D, T}) where {N, D, T} = T
