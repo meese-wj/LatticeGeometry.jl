@@ -43,6 +43,7 @@ struct UnitCell{NA, D, T} <: AbstractUnitCell
         return new{NA, D, T}(anames, apos)
     end
 end
+UnitCell(anames, apos) = UnitCell(anames, _convert_vectors_into_SVectors(apos))
 
 """
     UnitCell([atom_names], atomic_positions)
@@ -80,6 +81,14 @@ function UnitCell(apos::SA.SVector{NA, SA.SVector{D, T}}; name_base = "Atom", wa
     anames = SA.SVector{NA}(anames)
     return UnitCell(anames, apos)
 end
+function _convert_vectors_into_SVectors(apos)
+    NA = length(apos)
+    D = length(apos[1])
+    T = NA > oneunit(NA) ? promote_type( map(v -> eltype(v), apos)... ) : eltype(apos[1])
+    apos_2 = map( v -> SA.SVector{D, T}(v), apos )
+    return SA.SVector{NA}(apos_2)
+end
+UnitCell(apos) = UnitCell(_convert_vectors_into_SVectors(apos))
 
 Base.names(cell::UnitCell) = cell.atom_names
 dimension(::UnitCell{N, D, T}) where {N, D,T} = D

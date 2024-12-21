@@ -13,12 +13,11 @@ include("CrystalGeometer.jl")
 export AbstractVectorBasis, CrystalBasis, ReducedBasis,
        AbstractCrystalGeometer, ReducedToCrystal, CrystalToReduced,
        metric, dot, norm, cosine_angle_between, angle_between,
-       basis_vectors, basis_change, cell_volume,
+       basis_vectors, basis_change, cell_volume, change_coordinates,
        DefaultCrystalGeometer
 
 include("LatticeStructures.jl")
-export construct_metric, 
-       AbstractLatticeStructure, dot, norm
-       LatticeStructure, metric
+export AbstractLatticeStructure,
+       LatticeStructure, unitcell_vertices
 
 end

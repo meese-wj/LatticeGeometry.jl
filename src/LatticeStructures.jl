@@ -86,20 +86,23 @@ basis_vectors(latt::AbstractLatticeStructure) = (basis_vectors ∘ geometer)(lat
 metric(latt::AbstractLatticeStructure) = (metric ∘ geometer)(latt)
 cell_volume(latt::AbstractLatticeStructure) = (cell_volume ∘ geometer)(latt)
 
+change_coordinates(Pvec, latt::AbstractLatticeStructure, basis::AbstractBasisTransformation) = change_coordinates(Pvec, geometer(latt), basis)
+
 # Julian gifts for free
 function atomic_positions(latt::AbstractLatticeStructure)
-    dim = dimension(latt)
+    D = dimension(latt)
     anames = names(unitcell(latt))
     apos_Rcoords = atomic_positions(unitcell(latt))
     pos_type = promote_rule( (atomic_position_type ∘ unitcell)(latt), (basis_vector_type ∘ geometer)(latt) )
 
-    lattice_atoms = Dict{eltype(anames), Vector{SA.SVector{dim, pos_type}}}()
+    lattice_atoms = Dict{eltype(anames), Vector{SA.SVector{D, pos_type}}}()
     for (atom, pos) ∈ zip(anames, apos_Rcoords)
         positions = SA.SVector{D, pos_type}[]
 
-        for red_coords ∈ Iterators.product( map( L -> 1:1:L, axis_cells(latt) ) )
-            Pvec = pos + SA.SVector{D}(red_coords)
-            push!(positions, change_coordinates(Pvec, geometer(latt), ReducedToCrystal()) )
+        # TODO: Maybe may the 1:1:L work for different ranges?
+        for red_coords ∈ Iterators.product( map( L -> 1:1:L, axis_cells(latt) )... )
+            Pvec = pos + SA.SVector{D}(red_coords...)
+            push!(positions, change_coordinates(Pvec, latt, ReducedToCrystal()) )
         end
 
         lattice_atoms[atom] = positions
@@ -107,6 +110,15 @@ function atomic_positions(latt::AbstractLatticeStructure)
 
     return lattice_atoms
 end
+
+function unitcell_vertices(latt::AbstractLatticeStructure, ::ReducedBasis)
+    # TODO: Extend to higher dimensions.
+    @assert dimension(latt) == 2 "I haven't extended this to 3D or higher yet."
+    vertices = [ [0, 0], [1, 0], [1, 1], [0, 1] ]
+    vertices = map(v -> SA.SVector{2}(v), vertices)
+    return SA.SVector{length(vertices)}(vertices)
+end
+unitcell_vertices(latt::AbstractLatticeStructure, ::CrystalBasis) = map( v -> change_coordinates(v, geometer(latt), ReducedToCrystal()), unitcell_vertices(latt, ReducedBasis()) )
 
 struct LatticeStructure{D, C <: AbstractUnitCell, G <: AbstractCrystalGeometer} <: AbstractLatticeStructure 
     cells_per_axis::SA.SVector{D, Int}
@@ -124,13 +136,13 @@ struct LatticeStructure{D, C <: AbstractUnitCell, G <: AbstractCrystalGeometer} 
     end
 end
 
-LatticeStructure{C, G}(Lsizes, cell::C, geometer::C) where {C, G} = LatticeStructure{length(Lsizes), C, G}(Lsizes, cell, geometer)
+LatticeStructure(Lsizes, cell::C, geometer::G) where {C, G} = LatticeStructure{length(Lsizes), C, G}(Lsizes, cell, geometer)
 
 axis_cells(latt::LatticeStructure) = latt.cells_per_axis
 dimension(::LatticeStructure{D, C, G}) where {D, C, G} = D
 num_cells(latt::LatticeStructure) = prod(latt.cells_per_axis)
 
-unitcell(latt::LatticeStructure) = latt.cell
+unitcell(latt::LatticeStructure) = latt.unitcell
 unitcell_type(::LatticeStructure{D, C, G}) where {D, C, G} = C
 
 geometer(latt::LatticeStructure) = latt.geometer
