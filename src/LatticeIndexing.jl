@@ -119,7 +119,7 @@ LatticeIndexer(2, 5)
 julia> index(indexer, LatticeIndices(; atom = 1, cell = 1), AtomOrdered())
 1
 
-julia> index(indexer, LatticeIndices(; atom = 2, cell = 3), AtomOrdered())
+julia> index(indexer, LatticeIndices(; atom = 2, cell = 4), AtomOrdered())
 8
 ```
 """
