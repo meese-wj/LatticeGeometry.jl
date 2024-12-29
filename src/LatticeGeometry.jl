@@ -16,6 +16,11 @@ export AbstractVectorBasis, CrystalBasis, ReducedBasis,
        basis_vectors, basis_change, cell_volume, change_coordinates,
        DefaultCrystalGeometer
 
+include("LatticeIndexing.jl")
+export CellOrdered, AtomOrdered, DefaultIndexing,
+       LatticeIndexer, atoms_per_cell, num_cells, num_atoms,
+       LatticeIndices, atom, cell, index
+
 include("LatticeStructures.jl")
 export AbstractLatticeStructure,
        LatticeStructure, unitcell_vertices
