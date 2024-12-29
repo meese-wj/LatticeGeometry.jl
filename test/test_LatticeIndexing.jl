@@ -21,6 +21,13 @@ using LatticeGeometry
             @test index(indexer, LatticeIndices(; atom = 1, cell = cidx), CellOrdered()) == cidx
             @test index(indexer, LatticeIndices(; atom = 1, cell = cidx), AtomOrdered()) == cidx
         end
+
+        for cidx ∈ 1:N
+            @test atom(LatticeIndices(indexer, cidx)) == 1
+            @test atom(LatticeIndices(indexer, cidx, AtomOrdered())) == 1
+            @test cell(LatticeIndices(indexer, cidx)) == cidx
+            @test cell(LatticeIndices(indexer, cidx, AtomOrdered())) == cidx
+        end
     end
 
     @testset "Two Atoms per Unitcell" begin
@@ -36,6 +43,8 @@ using LatticeGeometry
         @test atoms_per_cell(indexer) == NA
         @test num_cells(indexer) == N
         @test num_atoms(indexer) == N * NA
+
+
     end
     
 end
