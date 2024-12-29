@@ -162,6 +162,7 @@ julia> atom(indices)
 
 julia> cell(indices)
 3
+```
 """
 function LatticeIndices(indexer::LatticeIndexer, idx::Number, ::CellOrdered)
     (cell, atom) = _backward_index(idx, num_cells(indexer))
@@ -186,6 +187,7 @@ julia> atom(indices)
 
 julia> cell(indices)
 2
+```
 """
 function LatticeIndices(indexer::LatticeIndexer, idx::Number, ::AtomOrdered)
     (atom, cell) = _backward_index(idx, atoms_per_cell(indexer))
