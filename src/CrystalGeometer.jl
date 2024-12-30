@@ -74,7 +74,7 @@ then the scalar product between them is
 
 where ``g_{ij}`` is the metric tensor. Quantitatively, it
 follows as ``g_{ij} = C_{ki}C_{kj}`` where ``C_{ij} = a_{j,i}`` is the matrix
-of basis vectors ``\{\vec{a}_i}\}. Thus, the components of the metric 
+of basis vectors ``\{\vec{a}_i}\}``. Thus, the components of the metric 
 tensor are 
 
 ```math
