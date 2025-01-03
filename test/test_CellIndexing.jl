@@ -1,6 +1,7 @@
 using Test
 using LatticeGeometry
 import StaticArrays as SA
+using BenchmarkTools
 
 @testset "CellIndexing.jl" begin
     
@@ -46,6 +47,7 @@ import StaticArrays as SA
         cell = 18606 # hard-coded, check it and see🎶
         good_site = CellIndices( ste )
         @test index(indexer, good_site) == ste[1] + (ste[2] - 1) * dims[1] + (ste[3] - 1) * dims[1] * dims[2] + (ste[4] - 1) * dims[1] * dims[2] * dims[3]
-        @show @btime CellIndices($indexer, $cell)
+        @test CellIndices(indexer, cell) |> coordinates == SA.SVector(ste)
+        @test (@benchmark CellIndices($indexer, $cell)).memory == zero(Int) # test allocations
     end
 end
