@@ -148,24 +148,3 @@ unitcell_type(::LatticeStructure{D, C, G}) where {D, C, G} = C
 
 geometer(latt::LatticeStructure) = latt.geometer
 geometer_type(::LatticeStructure{D, C, G}) where {D, C, G} = G
-
-struct LatticeStructure2{D, C <: AbstractUnitCell, T} <: AbstractLatticeStructure
-    lattice_constants::SA.SVector{D, T}
-    lattice_vectors::SA.SVector{D, SA.SVector{D, T}}
-    g_RedToCrys::SA.SMatrix{D, D, T}
-    g_CrysToRed::SA.SMatrix{D, D, T}
-    unitcell::C
-    
-    function LatticeStructure(vecs::SA.SVector{D, SA.SVector{D, T}}, unitcell::C) where {D, C, T}
-        @assert D == dimension(unitcell) "The $(D)-dimensional lattice vectors must live in the $(dimension(unitcell))-dimensional space as the unit cell of type $(typeof(unitcell))."
-
-        latt_consts = LA.norm.(vecs)
-        g_RedToCrys = construct_metric(vecs)
-        g_CrysToRed = LA.inv(g_RedToCrys)
-        return new{D,C,T}(SA.SVector{D}(latt_consts), vecs, g_RedToCrys, g_CrysToRed, unitcell)
-    end
-end
-
-metric(::CrystalBasis, latt::LatticeStructure) = latt.g_RedToCrys
-metric(::ReducedBasis, latt::LatticeStructure) = latt.g_CrysToRed
-
