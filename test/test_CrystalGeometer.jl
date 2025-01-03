@@ -65,7 +65,8 @@ using LinearAlgebra
                 @testset "Cubic Lattice" begin
                     cube_vecs = [ [1, 0, 0], [0, 1, 0], [0, 0, 1] ]
                     cube_geo = DefaultCrystalGeometer{ftype}(cube_vecs)
-                    
+
+                    @test LatticeGeometry.basis_vector_type(cube_geo) == ftype
                     @test norm(Pvec, cube_geo, CrystalBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
                     @test norm(Pvec, cube_geo, ReducedBasis()) ≈ sqrt( sum( x->x^2, Pvec ))
                     @test dot(Pvec, Qvec, cube_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
@@ -74,6 +75,8 @@ using LinearAlgebra
                     @test isapprox(cosine_angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)); rtol = eps(ftype))
                     @test isapprox(angle_between( Pvec, Qvec, cube_geo, CrystalBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
                     @test isapprox(angle_between( Pvec, Qvec, cube_geo, ReducedBasis() ), acos(sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec))); rtol = eps(ftype))
+                    @test change_coordinates( [2.5, 0, 0], cube_geo, ReducedToCrystal() ) ≈ [2.5, 0.0, 0.0]
+                    @test change_coordinates( [2.5, 0, 1.1], cube_geo, CrystalToReduced() ) ≈ [2.5, 0.0, 1.1]
                 end
 
                 @testset "Orthorhombic Lattice" begin
@@ -83,12 +86,15 @@ using LinearAlgebra
                     ortho_vecs = [ av, bv, cv ]
                     ortho_geo = DefaultCrystalGeometer{Float32}(ortho_vecs)
                     
+                    @test LatticeGeometry.basis_vector_type(ortho_geo) == ftype
                     @test norm(Pvec, ortho_geo, CrystalBasis()) ≈ sqrt(sum(x -> x^2, Pvec))
                     @test norm(Pvec, ortho_geo, ReducedBasis()) ≈ sqrt(sum(x -> x^2, Pvec .* av) + sum(x -> x^2, Pvec .* bv) + sum(x -> x^2, Pvec .* cv))
                     @test dot(Pvec, Qvec, ortho_geo, CrystalBasis()) ≈ sum( Pvec .* Qvec )
                     @test dot(Pvec, Qvec, ortho_geo, ReducedBasis()) ≈ sum([ ortho_vecs[idx][idx]^2 * Pvec[idx] * Qvec[idx] for idx ∈ 1:3 ])
                     @test angle_between(Pvec, Qvec, ortho_geo, CrystalBasis()) ≈ acos( sum( Pvec .* Qvec ) / (norm(Pvec) * norm(Qvec)) )
                     @test angle_between(Pvec, Qvec, ortho_geo, ReducedBasis()) ≈ acos(sum([ ortho_vecs[idx][idx]^2 * Pvec[idx] * Qvec[idx] for idx ∈ 1:3 ]) / (norm(Pvec, ortho_geo, ReducedBasis()) * norm(Qvec, ortho_geo, ReducedBasis())))
+                    @test change_coordinates([0, 0, 2.3], ortho_geo, ReducedToCrystal()) ≈ [0, 0, 3 * 2.3]
+                    @test change_coordinates([1, 1, 1], ortho_geo, CrystalToReduced()) ≈ [1, 1/2, 1/3]
                 end
 
                 @testset "Rhombohedral Lattice" begin
@@ -102,11 +108,15 @@ using LinearAlgebra
                     Svec = Rvec + [0,0,1]
                     Tvec = [1, 0, 0]
                     
+                    @test LatticeGeometry.basis_vector_type(rhomb_geo) == ftype
                     @test angle_between( Tvec, [0, 1, 0], rhomb_geo, ReducedBasis() ) ≈ 2π/3  # hard-coded because this result is important
                     @test angle_between( Tvec, [0, 0, 1], rhomb_geo, ReducedBasis() ) ≈ π/2  # hard-coded because this result is important
                     @test angle_between( Tvec, Rvec, rhomb_geo, ReducedBasis() ) ≈ π/3  # hard-coded because this result is important
                     @test angle_between( Rvec, Svec, rhomb_geo, ReducedBasis() ) ≈ atan(rhc[3] / norm(rha2))  # hard-coded because this result is important
-
+                    @test change_coordinates( [1,1,0], rhomb_geo, ReducedToCrystal() ) ≈ (rha1 + rha2)
+                    chcoords = change_coordinates( -0.1rha1 + rha2 + 3.67rhc, rhomb_geo, CrystalToReduced() )
+                    excoords = [-0.1, 1, 3.67]
+                    @test isapprox(chcoords, excoords; rtol = 2eps(ftype))
                 end
             end
 
