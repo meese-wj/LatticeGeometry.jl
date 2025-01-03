@@ -79,7 +79,7 @@ cell(index::LatticeIndices) = index.cell_index
 _forward_index(idx, jdx, N) = idx + (jdx - oneunit(jdx)) * N
 function _backward_index(number, N)
     idx = oneunit(number) + (number - oneunit(number)) % N
-    jdx = oneunit(number) + (number - idx) // N
+    jdx = oneunit(number) + (number - idx) ÷ N
     return (idx, jdx)
 end
 
