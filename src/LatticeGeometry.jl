@@ -29,6 +29,6 @@ export CellOrdered, AtomOrdered, DefaultIndexing,
 
 include("LatticeStructures.jl")
 export AbstractLatticeStructure,
-       LatticeStructure, unitcell_vertices
+       LatticeStructure, unitcell_vertices, cell_indexer
 
 end
