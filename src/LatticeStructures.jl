@@ -100,8 +100,8 @@ function atomic_positions(latt::AbstractLatticeStructure)
         positions = SA.SVector{D, pos_type}[]
 
         # TODO: Maybe may the 1:1:L work for different ranges?
-        for red_coords ∈ Iterators.product( map( L -> 1:1:L, axis_cells(latt) )... )
-            Pvec = pos + SA.SVector{D}(red_coords...)
+        for cell_idx ∈ range(1, num_cells(latt))
+            Pvec = pos + coordinates( CellIndices( cell_indexer(latt), cell_idx ) )
             push!(positions, change_coordinates(Pvec, latt, ReducedToCrystal()) )
         end
 
@@ -121,7 +121,7 @@ end
 unitcell_vertices(latt::AbstractLatticeStructure, ::CrystalBasis) = map( v -> change_coordinates(v, geometer(latt), ReducedToCrystal()), unitcell_vertices(latt, ReducedBasis()) )
 
 struct LatticeStructure{D, C <: AbstractUnitCell, G <: AbstractCrystalGeometer} <: AbstractLatticeStructure 
-    cells_per_axis::SA.SVector{D, Int}
+    cell_indexer::DefaultCellIndexer{D}
     unitcell::C
     geometer::G
 
@@ -132,15 +132,16 @@ struct LatticeStructure{D, C <: AbstractUnitCell, G <: AbstractCrystalGeometer} 
             @assert L > zero(L) "The number of cells must be nonnegative. Is it possible for axis $idx to have $L cells?"
         end
 
-        return new{D, C, G}( SA.SVector{D, Int}(Lsizes), cell, geometer)
+        return new{D, C, G}( DefaultCellIndexer(Lsizes), cell, geometer)
     end
 end
 
 LatticeStructure(Lsizes, cell::C, geometer::G) where {C, G} = LatticeStructure{length(Lsizes), C, G}(Lsizes, cell, geometer)
 
-axis_cells(latt::LatticeStructure) = latt.cells_per_axis
+cell_indexer(latt::LatticeStructure) = latt.cell_indexer
+axis_cells(latt::LatticeStructure) = SA.SVector(  size( cell_indexer(latt) )  )
 dimension(::LatticeStructure{D, C, G}) where {D, C, G} = D
-num_cells(latt::LatticeStructure) = prod(latt.cells_per_axis)
+num_cells(latt::LatticeStructure) = length( cell_indexer(latt) )
 
 unitcell(latt::LatticeStructure) = latt.unitcell
 unitcell_type(::LatticeStructure{D, C, G}) where {D, C, G} = C
