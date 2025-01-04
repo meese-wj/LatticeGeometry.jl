@@ -83,7 +83,7 @@ using StaticArrays
 
         @testset "Display Functionality" begin
             warren_buffer = IOBuffer()
-            cell = UnitCell( ([1.0]) )
+            cell = UnitCell( ["Buffet"], ([1.0]) )
 
             show(warren_buffer, cell)
             warren_str = String(take!(warren_buffer))
