@@ -78,6 +78,17 @@ using StaticArrays
             @test dimension(cell) == length(positions[begin])
             @test (names(cell) .== labels) |> all
             @test (atomic_positions(cell) .== positions) |> all
+            @test LatticeGeometry.atomic_position_type(cell) === Float64
+        end
+
+        @testset "Display Functionality" begin
+            warren_buffer = IOBuffer()
+            cell = UnitCell( ([1.0]) )
+
+            show(warren_buffer, cell)
+            warren_str = String(take!(warren_buffer))
+
+            @test warren_str == summarize(cell)
         end
     end
 end
