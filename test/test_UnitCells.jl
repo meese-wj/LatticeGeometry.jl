@@ -84,11 +84,15 @@ using StaticArrays
         @testset "Display Functionality" begin
             warren_buffer = IOBuffer()
             cell = UnitCell( ["Buffet"], ([1.0]) )
+            cell2 = UnitCell( ([1.0]) )
 
             show(warren_buffer, cell)
             warren_str = String(take!(warren_buffer))
-
             @test warren_str == summarize(cell)
+            
+            show(warren_buffer, cell2)
+            warren_str = String(take!(warren_buffer))
+            @test warren_str == summarize(cell2)
         end
     end
 end
