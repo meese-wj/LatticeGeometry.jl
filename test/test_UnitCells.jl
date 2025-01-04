@@ -4,6 +4,20 @@ using StaticArrays
 
 @testset "UnitCells.jl" begin
 
+    @testset "Helper Functions" begin
+        vec_vectors = [ [1.0, 2.0, 3.0], [4.0, 5.0, 6.0] ]
+        tup_vectors = ( [1.0, 2.0, 3.0], [4.0, 5.0, 6.0] )
+        svec_vectors = LatticeGeometry._convert_vectors_into_SVectors(vec_vectors)
+        svec_tup = LatticeGeometry._convert_vectors_into_SVectors(tup_vectors)
+
+        @test typeof(svec_vectors) === SVector{2, SVector{3, Float64}}
+        @test typeof(svec_tup) === SVector{2, SVector{3, Float64}}
+        @test svec_vectors[begin] == vec_vectors[begin]
+        @test svec_vectors[end] == vec_vectors[end]
+        @test svec_tup[begin] == vec_vectors[begin]
+        @test svec_tup[end] == vec_vectors[end]
+    end
+
     @testset "AbstractUnitCell" begin
         @testset "Enforced Interface Definitions" begin
             struct _EmptyCell <: AbstractUnitCell end
